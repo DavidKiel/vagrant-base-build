@@ -1,0 +1,25 @@
+
+ basevm=vagrant-centos6-64
+ boxname=centos6-64
+ basehd=40
+
+ vboxmanage createvm --name $basevm --register  
+ vboxmanage createhd --name $basevm.VDI --size ($basehd*1000) --format VDI  
+ vboxmanage createstoragectl 
+ vboxmanage storageattach $basevm $basevm.VDI
+ vboxmanage mocifyvm $basevm --nic1 bridged --cableconnected1 on --bridgeadapter1 eth0 
+ mount dvd iso
+
+ kickstart 
+    vboxmanage startvm $basevm
+    config yum repo
+    install puppet 
+    install guest additions
+
+ puppet apply build.pp 
+
+ yum clean all
+ vagrant box remove $boxname
+ vagrant package --output $boxname --base $basevm
+ vagrant box add $boxname
+
